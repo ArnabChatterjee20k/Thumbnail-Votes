@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-deployment
+  labels:
+    app: auth-deployment-label # deployment label
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: auth # identify the pods with label app:auth
+  template:
+    metadata:
+      labels: # pods label
+        app: auth
+    spec:
+      containers:
+      - name: auth
+        imagePullPolicy: Never
+        image: auth:latest
+        ports:
+        - containerPort: 5000

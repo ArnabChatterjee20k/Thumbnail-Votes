@@ -1,4 +1,3 @@
-import io
 import requests
 from thumnbail.utils.generate_random_name import generate_random_name
 from thumnbail.parser.PromptParser import prompt_parser, PromptParser
@@ -13,27 +12,33 @@ HF_API_TOKEN = os.environ.get("HF_API_TOKEN")
 class LLMService:
     def __init__(self):
         self.models = ["nerijs/pixelportraits192-XL-v1.0", "blink7630/caricature-xl",
-                       "zenafey/pixel_f2", "lora-library/B-LoRA-cartoon_line", "artificialguybr/TshirtDesignRedmond-V2"]
+                       "lora-library/B-LoRA-cartoon_line", "artificialguybr/TshirtDesignRedmond-V2"]
         self.negative_prompts = "blurry, out of focus, text, watermark, low quality, unrealistic anatomy, extra limbs, missing limbs, noise, deformed"
 
-    def __generate_image(self, prompt):
+    def generate_image(self, message):
         API_TOKEN = "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"
         API_URL = "https://api-inference.huggingface.co/models/nerijs/pixelportraits192-XL-v1.0"
         headers = {"Authorization": f"Bearer {HF_API_TOKEN}"}
 
+        prompt = self.__generate_prompt(message)[0]
+
         def query(payload):
             response = requests.post(API_URL, headers=headers, json=payload)
-            return response.content
+            if response.ok:
+                return response.content
+            return None
 
         image_bytes = query({
             "inputs": prompt,
         })
-        image = io.BytesIO(image_bytes)
+        if not image_bytes:
+            return "erro"
         name = generate_random_name()
-        with open(f"{f}.png", "wb") as f:
-            f.write(image)
+        with open(f"{name}.png", "wb") as f:
+            f.write(image_bytes)
+        return name
 
-    def generate_prompt(self, message):
+    def __generate_prompt(self, message):
         model = GoogleGenerativeAI(
             model="gemini-pro", google_api_key=GOOGLE_API_KEY)
         prompt = PromptTemplate(

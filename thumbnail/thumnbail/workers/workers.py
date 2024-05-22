@@ -1,8 +1,12 @@
-from celery import shared_task
-from celery.signals import task_failure , task_success ,task_postrun , task_prerun
-from thumnbail.services.LLMService import LLMService
+from thumnbail.workers.thumbnail_tasks import generate_image, generate_prompt, map_prompt_generate_image
+from celery import group, chain
 
-@shared_task
-def generate_image(message):
-    model = LLMService()
-    model.generate_image(message)
+
+def generate_image_group(message, model):
+    # chain(task(arg),task(result_from_prev,arg))
+    # here we are creating a chain of signatures
+    job = chain(generate_prompt.s(message), map_prompt_generate_image.s(generate_image.s(model)))
+
+    # task_workflow = chain()
+    task_ids = job.delay()
+    return str(task_ids)

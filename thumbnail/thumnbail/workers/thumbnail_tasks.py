@@ -2,9 +2,9 @@ from celery import shared_task , group , subtask
 from thumnbail.services.LLMService import LLMService
 
 @shared_task
-def generate_prompt(message) -> list[str]:
+def generate_prompt(message,count) -> list[str]:
     model = LLMService()
-    return model.generate_prompt(message)
+    return model.generate_prompt(message,count)
 
 @shared_task(ignore_result=True)
 def generate_image(message,model_name):

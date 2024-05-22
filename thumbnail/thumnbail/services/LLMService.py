@@ -42,19 +42,19 @@ class LLMService:
             f.write(image_bytes)
         return name
 
-    def generate_prompt(self, message):
+    def generate_prompt(self,message,count):
         model = GoogleGenerativeAI(
             model="gemini-pro", google_api_key=GOOGLE_API_KEY)
         prompt = PromptTemplate(
             template="""You are an expert prompt engineer.
-            I will give you a prompt which is intended for generating thumbnails or tshirt design. Give me an array of 4 prompt for feeding it into a stable diffusion image generation model.
+            I will give you a prompt which is intended for generating thumbnails or tshirt design. Give me an array of {count} prompt for feeding it into a stable diffusion image generation model.
             Give me in the output in the json format- prompts:[]
             If you do not know the value of an attribute asked to extract.return null for the attribute's value.
             input - {message}
             """,
-            input_variables=["message"],
+            input_variables=["message","count"],
         )
 
         chain = prompt | model | prompt_parser
-        ans: PromptParser = chain.invoke({"message": message})
+        ans: PromptParser = chain.invoke({"message": message,"count":count})
         return ans.prompts if ans else []

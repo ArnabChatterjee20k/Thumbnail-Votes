@@ -1,5 +1,4 @@
 import requests
-from thumnbail.utils.generate_random_name import generate_random_name
 from thumnbail.parser.PromptParser import prompt_parser, PromptParser
 from langchain_google_genai import GoogleGenerativeAI
 from langchain.prompts import ChatPromptTemplate, PromptTemplate
@@ -37,10 +36,9 @@ class LLMService:
         })
         if not image_bytes:
             return "erro"
-        name = generate_random_name()
-        with open(f"{name}.png", "wb") as f:
-            f.write(image_bytes)
-        return name
+        # with open(f"{name}.png", "wb") as f:
+        #     f.write(image_bytes)
+        return image_bytes
 
     def generate_prompt(self,message,count):
         model = GoogleGenerativeAI(

@@ -8,7 +8,7 @@ router = Blueprint("thumbnail_generation", __name__)
 def generate(user_id):
     body = request.json
     message = body.get("message")
-    count = body.get("count") if body.get("count") else 1
+    count = int(body.get("count")) if body.get("count") else 1
     ACCECPTABLE_COUNT = 4
     model_to_use = body.get("model") if body.get(
         "model") in sd_models else sd_models[0]

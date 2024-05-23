@@ -11,6 +11,11 @@
 celery -A celery_worker.celery_app worker --loglevel INFO -P solo
 ```
 
+> starting the flower service to monitor celery
+```
+celery --broker=amqp://user:password@localhost:5672 flower 
+```
+
 ### Celery workflow getting used here for executing the tasks
 ![alt text](woker_chain.png)
 

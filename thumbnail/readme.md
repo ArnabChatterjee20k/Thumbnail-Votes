@@ -58,3 +58,8 @@ job = chord(header)(callback)
 * So we made another worker which takes a set of prompts and task to perform. And map prompts to workers
 * Here we have created a subtask because by creating a subtask, we can clone, group, or chain tasks together in different ways to create complex task workflows.
 * Now we want to save all the result in the db as a batch. So we have created a chord. The header is group for parallel tasks. So I have created a chain and put it in an array. The result flows into the callback in the form of an array of result ids.
+
+### Why a separate table for Projects and Workers?
+* Suppose a project generation is failed
+* When it will retry it will add its id to the Workers table. There can be a chance that the id is different.
+* Also we may use the worker ids to know the failed processes by detecting how many times a project is running through the data

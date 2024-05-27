@@ -1,16 +1,17 @@
-from thumnbail.workers.thumbnail_tasks import generate_image, generate_prompt, map_prompt_generate_image, save_images_to_storage
+from thumnbail.workers.thumbnail_tasks import generate_image, generate_prompt, map_prompt_generate_image, save_images_to_storage, save_thumbnail_ids_to_project
 from celery import chain, chord
 from celery.result import AsyncResult
 
 
-def generate_image_group(message, model, count):
+def generate_image_group(project_id, message, model, count):
     # chain(task(arg),task(result_from_prev,arg))
     # here we are creating a chain of signatures
 
     # header is a group of task running parallely in chord. And it takes an array . So making it a chain
     header = [chain(generate_prompt.s(message, count), map_prompt_generate_image.s(
         generate_image.s(model)))]
-    callback = save_images_to_storage.s()
+    callback = chain(save_images_to_storage.s(),
+                     save_thumbnail_ids_to_project.s(project_id))
     """the callback will receive an structure like this
     and they are ids. Take the data from 1st index array
     nested_list = [
@@ -33,3 +34,7 @@ def generate_image_group(message, model, count):
     # task_workflow = chain()
     task_ids: AsyncResult = job
     return str(task_ids.task_id)
+
+
+def get_workers_status(task_id):
+    return AsyncResult(task_id).state

@@ -2,7 +2,8 @@ from celery import shared_task, group, subtask
 from thumnbail.services.LLMService import LLMService
 from thumnbail.services.UploadService import UploadService
 from celery.result import AsyncResult
-import json
+from thumnbail.utils.thumbnails import save_thumbnails
+import traceback
 
 
 @shared_task(ignore_result=False)
@@ -30,7 +31,7 @@ def map_prompt_generate_image(prompts, sub_task_to_use):
     return group_task()
 
 
-@shared_task
+@shared_task(ignore_result=False)
 def save_images_to_storage(images: list):
     """
     it will receive an structure like this
@@ -51,6 +52,7 @@ def save_images_to_storage(images: list):
 ]
 """
     storage = UploadService()
+
     def get_ids(data):
         ids = []
 
@@ -64,10 +66,16 @@ def save_images_to_storage(images: list):
 
         traverse(data)
         return ids
-    logs = json.dumps(images)
-
-    result_ids = get_ids(images)[1:] # as the first id is of no use
-
+    
+    result_ids = get_ids(images)[1:]  # as the first id is of no use
+    file_ids = []
     for result_id in result_ids:
         image = AsyncResult(result_id).result
-        storage.upload(image)
+        file_id = storage.upload(image.encode("utf-8"))
+        file_ids.append(str(file_id))
+    return file_ids
+
+
+@shared_task
+def save_thumbnail_ids_to_project(image_ids, project_id):
+    save_thumbnails(project_id, image_ids)

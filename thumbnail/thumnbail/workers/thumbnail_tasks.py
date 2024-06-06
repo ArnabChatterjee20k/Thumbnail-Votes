@@ -3,7 +3,8 @@ from thumnbail.services.LLMService import LLMService
 from thumnbail.services.UploadService import UploadService
 from celery.result import AsyncResult
 from thumnbail.utils.thumbnails import save_thumbnails
-import traceback
+from thumnbail.publisher import publish
+import json
 
 
 @shared_task(ignore_result=False)
@@ -66,7 +67,7 @@ def save_images_to_storage(images: list):
 
         traverse(data)
         return ids
-    
+
     result_ids = get_ids(images)[1:]  # as the first id is of no use
     file_ids = []
     for result_id in result_ids:
@@ -79,3 +80,5 @@ def save_images_to_storage(images: list):
 @shared_task
 def save_thumbnail_ids_to_project(image_ids, project_id):
     save_thumbnails(project_id, image_ids)
+    publish(json.dumps({"message": "project:saved",
+            "project_id": project_id, "image_ids": image_ids}))

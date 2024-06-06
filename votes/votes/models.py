@@ -10,5 +10,7 @@ class Vote(Base):
 
 class Voters(Base):
     __tablename__ = "voters"
-    user_id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    vote_id: Mapped[int]  = mapped_column(ForeignKey("vote.id"))
+    id:Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    user_id: Mapped[int]
+    # since thumbnail is unique
+    thumbnail_voted: Mapped[int]  = mapped_column(ForeignKey("vote.thumbnail_id"))

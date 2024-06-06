@@ -35,7 +35,7 @@ class LLMService:
             "negative_prompt": self.negative_prompts
         })
         if not image_bytes:
-            return "erro"
+            raise Exception("some erorr occured")
         # with open(f"{name}.png", "wb") as f:
         #     f.write(image_bytes)
         return image_bytes

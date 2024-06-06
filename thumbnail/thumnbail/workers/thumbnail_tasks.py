@@ -71,7 +71,7 @@ def save_images_to_storage(images: list):
     file_ids = []
     for result_id in result_ids:
         image = AsyncResult(result_id).result
-        file_id = storage.upload(image.encode("utf-8"))
+        file_id = storage.upload(image)
         file_ids.append(str(file_id))
     return file_ids
 

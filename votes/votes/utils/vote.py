@@ -27,12 +27,17 @@ def add_thumbnail(session:Session,project_id,thumbnail_id):
     session.commit()
 
 @with_db_session()
-def get_vote(session:Session,vote_id):
-    query = select(Vote.id).where(Vote.id == vote_id).with_for_update()
-    return session.execute(query).scalar_one()
+def get_vote(session:Session,project_id):
+    query = select(Vote).where(Vote.project_id == project_id).with_for_update()
+    return session.execute(query).scalars().all()
 
 @with_db_session()
-def up_vote(session:Session,user_id,vote_id):    
-    voter = Voters(user_id=user_id,vote_id=vote_id)
+def get_voters(session:Session,thumbnail_id):
+    query = select(Voters).where(Voters.thumbnail_voted == thumbnail_id)
+    return session.execute(query).scalars().all()
+
+@with_db_session()
+def up_vote(session:Session,user_id,thumbnail_id):    
+    voter = Voters(user_id=user_id,thumbnail_voted=thumbnail_id)
     session.add(voter)
     session.commit()

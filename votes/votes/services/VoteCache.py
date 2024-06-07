@@ -13,7 +13,7 @@ class VoteManager:
         self._votes = {}
 
     def __getitem__(self, project_id):
-        return self._votes.__getitem__(project_id)
+        return self._votes.get(project_id,[])
 
     def __setitem__(self, key, value):
         self._votes.__setitem__(key, value)
@@ -38,7 +38,7 @@ class VoteManager:
         thumbnails = self._cache_thumbnails(project_id)
         for thumbnail in thumbnails:
             self._cache_voters(project_id,thumbnail.thumbnail_id)
-        return self._votes[project_id]
+        return self[project_id]
 
     def _cache_thumbnails(self,project_id):
         try:
@@ -54,3 +54,7 @@ class VoteManager:
         voters = get_voters(thumbnail_id=thumbnail_id)
         for voter in voters:
             self._votes[project_id][voter.thumbnail_voted].append(voter.user_id)
+
+
+
+vote_manager = VoteManager()

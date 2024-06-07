@@ -2,27 +2,54 @@ import pika
 from pika.adapters.blocking_connection import BlockingChannel
 from pika import spec
 
-EXCHANGE = 'THUMBNAILS'
-EXCHANGE_TYPE = 'direct'
-QUEUE_NAME = "thumbnail_sending_queue"
-ROUTING_KEY = "thumbnail_details"
-from votes.utils.vote import add_thumbnail
+from votes.utils.vote import add_thumbnail , up_vote
 import json
 
-def callback(channel:BlockingChannel, method:spec.Basic.Deliver, properties, body):
+
+def thumbnail_callback(channel:BlockingChannel, method:spec.Basic.Deliver, properties, body):
     try:
         response = json.loads(body.decode())
-        message = response.get("message")
-        print(f"Received {message}")
         project_id = response.get("project_id")
         image_ids = response.get("image_ids")
         for image_id in image_ids:
             add_thumbnail(project_id=project_id,thumbnail_id=image_id)
-
         channel.basic_ack(delivery_tag=method.delivery_tag)
     except Exception as e:
         channel.basic_nack(delivery_tag=method.delivery_tag)
         print(e)
+
+def vote_db_callback(channel:BlockingChannel, method:spec.Basic.Deliver, properties, body):
+    try:
+        response = json.loads(body.decode())
+        user_id = response.get("user_id")
+        thumbnail_id = response.get("thumbnail_id")
+        up_vote(user_id=user_id,thumbnail_id=thumbnail_id)
+        channel.basic_ack(delivery_tag=method.delivery_tag)
+    except Exception as e:
+        channel.basic_nack(delivery_tag=method.delivery_tag)
+        print(e)
+
+EXCHANGE_INFO = {
+    'THUMBNAILS': {
+        'type': 'direct',
+        'queue': 'thumbnail_sending_queue',
+        'routing_key': 'thumbnail_details',
+        'callback':thumbnail_callback
+    },
+    'VOTES': {
+        'type': 'direct',
+        'queue': 'votes_sending_queue',
+        'routing_key': 'vote_update',
+        'callback':vote_db_callback
+    }
+}
+
+def setup_exchange_queue_binding(channel:BlockingChannel, exchange, exchange_type, queue_name, routing_key,callback):
+    channel.exchange_declare(exchange=exchange, exchange_type=exchange_type)
+    channel.queue_declare(queue=queue_name)
+    channel.queue_bind(queue=queue_name, exchange=exchange, routing_key=routing_key)
+    
+    channel.basic_consume(queue=queue_name, on_message_callback=callback, auto_ack=False)
 
 credentials = pika.PlainCredentials("user","pass")
 params = pika.ConnectionParameters(host="localhost", credentials=credentials)
@@ -31,24 +58,13 @@ connection = pika.BlockingConnection(parameters=params)
 
 channel = connection.channel()
 
-channel.exchange_declare(
-    exchange=EXCHANGE,
-    exchange_type=EXCHANGE_TYPE
-)
-
-channel.queue_declare(queue=QUEUE_NAME)
-
-
-channel.queue_bind(
-    QUEUE_NAME,
-    EXCHANGE,
-    ROUTING_KEY
-)
-
-channel.basic_consume(
-    queue=QUEUE_NAME,
-    on_message_callback=callback,
-    auto_ack=False
-)
-
+for exchange_name, exchange_info in EXCHANGE_INFO.items():
+    setup_exchange_queue_binding(
+        channel=channel,
+        exchange=exchange_name,
+        exchange_type=exchange_info['type'],
+        queue_name=exchange_info['queue'],
+        routing_key=exchange_info['routing_key'],
+        callback=exchange_info['callback']
+    )
 channel.start_consuming()

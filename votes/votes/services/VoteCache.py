@@ -34,13 +34,11 @@ class VoteManager:
 
     def cache_votes(self,project_id):
         if project_id in self._votes:
-            return
+            return self._votes[project_id]
         thumbnails = self._cache_thumbnails(project_id)
         for thumbnail in thumbnails:
             self._cache_voters(project_id,thumbnail.thumbnail_id)
-            return True
-        
-        return False
+        return self._votes[project_id]
 
     def _cache_thumbnails(self,project_id):
         try:

@@ -1,5 +1,5 @@
 from votes.db import Base
-from sqlalchemy import String,ForeignKey
+from sqlalchemy import String,ForeignKey , PrimaryKeyConstraint
 from sqlalchemy.orm import Mapped,mapped_column
 
 class Vote(Base):
@@ -10,7 +10,9 @@ class Vote(Base):
 
 class Voters(Base):
     __tablename__ = "voters"
-    id:Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     user_id: Mapped[int]
     # since thumbnail is unique
     thumbnail_voted: Mapped[int]  = mapped_column(ForeignKey("vote.thumbnail_id"))
+    __table_args__ = (
+        PrimaryKeyConstraint("user_id","thumbnail_voted", name="pk_id"),
+    )

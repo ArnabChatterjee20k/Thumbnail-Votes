@@ -1,13 +1,15 @@
 from flask import Flask
 from flask_socketio import SocketIO
 from .db import create_db
-from votes.routes.routes import router
+from .models import *
+
 socketio = SocketIO(cors_allowed_origins='*')
 def create_app():
     app = Flask(__name__)
     app.config['SECRET_KEY'] = 'secret!'
-    app.register_blueprint(router)
     create_db()
+    from votes.routes import main
+    app.register_blueprint(main)
     socketio.init_app(app=app)
     return app
 

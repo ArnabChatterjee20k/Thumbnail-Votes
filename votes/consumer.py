@@ -7,27 +7,34 @@ import json
 
 
 def thumbnail_callback(channel:BlockingChannel, method:spec.Basic.Deliver, properties, body):
+    print("thumbnail")
     try:
         response = json.loads(body.decode())
         project_id = response.get("project_id")
         image_ids = response.get("image_ids")
         for image_id in image_ids:
             add_thumbnail(project_id=project_id,thumbnail_id=image_id)
-        channel.basic_ack(delivery_tag=method.delivery_tag)
+        # channel.basic_ack(delivery_tag=method.delivery_tag)
     except Exception as e:
-        channel.basic_nack(delivery_tag=method.delivery_tag)
+        # channel.basic_nack(delivery_tag=method.delivery_tag) # do this with utmost knowledge what kind of exception should trigger this
         print(e)
+    channel.basic_ack(delivery_tag=method.delivery_tag)
+
 
 def vote_db_callback(channel:BlockingChannel, method:spec.Basic.Deliver, properties, body):
+    print("voting")
     try:
         response = json.loads(body.decode())
         user_id = response.get("user_id")
         thumbnail_id = response.get("thumbnail_id")
         up_vote(user_id=user_id,thumbnail_id=thumbnail_id)
-        channel.basic_ack(delivery_tag=method.delivery_tag)
+        # channel.basic_ack(delivery_tag=method.delivery_tag)
     except Exception as e:
-        channel.basic_nack(delivery_tag=method.delivery_tag)
+        # channel.basic_nack(delivery_tag=method.delivery_tag) # do this with utmost knowledge what kind of exception should trigger this
         print(e)
+
+    channel.basic_ack(delivery_tag=method.delivery_tag)
+
 
 EXCHANGE_INFO = {
     'THUMBNAILS': {

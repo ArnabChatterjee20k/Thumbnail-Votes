@@ -12,8 +12,3 @@ def create_app():
     app.register_blueprint(main)
     socketio.init_app(app=app)
     return app
-
-"""
-    todo
-    add support for updating votes and voters in the table using consumers
-"""

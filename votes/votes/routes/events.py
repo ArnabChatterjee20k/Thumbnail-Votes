@@ -1,4 +1,4 @@
-from flask_socketio import emit, join_room, leave_room, disconnect,ConnectionRefusedError
+from flask_socketio import emit, join_room, leave_room, disconnect, ConnectionRefusedError
 import functools
 from votes.services.VoteCache import vote_manager
 from votes.publisher import publish_upvote
@@ -13,6 +13,8 @@ def user_connect_and_validate():
     """
         somehow getting headers not working in flask_socketio
         so we will pass data for auth through querystring
+        we can authenticate here as well
+        but since its a service and will be connected through a gateway so using not verifying directly
     """
     args = request.args
     user_id = args.get("user_id")
@@ -24,7 +26,7 @@ def user_connect_and_validate():
 
 
 @socketio.on("vote")
-def client_vote(message:dict):
+def client_vote(message: dict):
     """
         if client got connected then automatically it will get the args on every event
     """
@@ -34,7 +36,7 @@ def client_vote(message:dict):
     project_id = int(args.get("project_id"))
     if not thumbnail_id or thumbnail_id not in cache[project_id]:
         return
-    thumbnail_upvoters:list = cache[project_id][thumbnail_id]
+    thumbnail_upvoters: list = cache[project_id][thumbnail_id]
     if user_id in thumbnail_upvoters:
         return
-    publish_upvote(user_id,thumbnail_id=thumbnail_id)
+    publish_upvote(user_id, thumbnail_id=thumbnail_id)

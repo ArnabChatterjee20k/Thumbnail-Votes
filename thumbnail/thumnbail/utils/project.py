@@ -47,11 +47,11 @@ def get_project(project_id):
         project = session.execute(query).scalar_one_or_none()
         if not project:
             return None
-        thumbnail_images = [image.id for image in project.thumbnails]
+        thumbnail_images = [image.image_id for image in project.thumbnails]
         latest_worker_id = [worker.worker_id for worker in project.workers][-1]
         workers_status = workers.get_workers_status(latest_worker_id)
-        print(latest_worker_id)
         return {
             "status": workers_status,
+            "title":project.name,
             "thumbnails": thumbnail_images
         }

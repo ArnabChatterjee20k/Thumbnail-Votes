@@ -1,4 +1,5 @@
 from pymongo import MongoClient
+from bson import ObjectId
 import gridfs
 from thumnbail.utils.generate_random_name import generate_random_name
 import os
@@ -15,3 +16,5 @@ class UploadService():
         name = generate_random_name()
         file_id = self.storage.put(image,filename=f"{name}.png",**metadata)
         return file_id
+    def get(self,thumnbail_id) -> gridfs.GridOut:
+        return self.storage.get(ObjectId(thumnbail_id))

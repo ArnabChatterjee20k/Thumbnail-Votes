@@ -3,6 +3,7 @@ from werkzeug.exceptions import BadRequest, InternalServerError, NotFound
 from thumnbail.data.sd_models import sd_models
 from thumnbail.utils.project import create_project_and_add_workers, get_project
 from thumnbail.utils.thumbnails import get_thumbnail_image
+import io
 router = Blueprint("thumbnail_generation", __name__)
 
 ACCEPTABLE_COUNT = 4
@@ -45,11 +46,8 @@ def project_get(project_id):
 
 @router.get("/thumbnails/<thumbnail_id>")
 def get_thumbnail(thumbnail_id):
-    image = get_thumbnail_image(thumbnail_id)
-    with open("test.png","wb") as f:
-        for i in image.read():
-            f.write(i.to_bytes())
-    return send_file(image,download_name=image.filename)
+    image_name,image_bytes = get_thumbnail_image(thumbnail_id)
+    return send_file(io.BytesIO(image_bytes),download_name=image_name)
 
 @router.get("/models")
 def get_models():

@@ -1,5 +1,7 @@
 import pika
-import json
+import json , os
+from dotenv import load_dotenv
+load_dotenv('.env')
 EXCHANGE_INFO = {
     'THUMBNAILS': {
         'type': 'direct',
@@ -12,9 +14,11 @@ EXCHANGE_INFO = {
         'routing_key': 'vote_update',
     }
 }
-
-credentials = pika.PlainCredentials("user", "pass")
-params = pika.ConnectionParameters(host="localhost", credentials=credentials)
+user = os.environ.get("VOTE_RABBITMQ_USER")
+password = os.environ.get("VOTE_RABBITMQ_PASS")
+host = os.environ.get("VOTE_RABBITMQ_HOST")
+credentials = pika.PlainCredentials(user,password)
+params = pika.ConnectionParameters(host=host, credentials=credentials)
 
 
 def publish_upvote(user_id, thumbnail_id):

@@ -1,0 +1,24 @@
+ARG PYTHON_VERSION=3.11.4
+FROM python:${PYTHON_VERSION}-slim
+
+WORKDIR /app
+
+COPY requirements.txt .
+
+# Download dependencies as a separate step to take advantage of Docker's caching.
+# Leverage a cache mount to /root/.cache/pip to speed up subsequent builds.
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install -r requirements.txt
+
+# Copy the source code into the container.
+COPY . .
+
+# Ensure entrypoint.sh is executable
+RUN chmod +x entrypoint.sh
+
+# Expose the port that the application listens on.
+EXPOSE 5400
+EXPOSE 5555
+
+ENTRYPOINT ["./entrypoint.sh"]
+CMD ["python", "app.py"]

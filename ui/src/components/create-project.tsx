@@ -25,7 +25,7 @@ To read more about using these font, please visit the Next.js documentation:
 **/
 "use client";
 
-import { useState } from "react";
+import { ChangeEvent, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
@@ -39,12 +39,12 @@ import {
   CardContent,
 } from "@/components/ui/card";
 import UserAvatar from "./user-avatar";
+import { Slider } from "./ui/slider";
 
 interface Project {
-  id: string;
   prompt: string;
-  votes: string[];
-  createdAt: string;
+  name: string;
+  count:number;
 }
 
 export function CreateProject() {
@@ -52,46 +52,23 @@ export function CreateProject() {
     "create"
   );
   const [projects, setProjects] = useState<Project[]>([]);
-  const [currentProject, setCurrentProject] = useState<Project | null>(null);
+  const [currentProject, setCurrentProject] = useState<Project>({
+    prompt: "",
+    name: "",
+    count:1
+  });
 
-  const handleCreateProject = (): void => {
-    const newProject: Project = {
-      id: `project-${projects.length + 1}`,
-      prompt: "",
-      votes: [],
-      createdAt: new Date().toISOString(),
-    };
-    setProjects([...projects, newProject]);
-    setCurrentProject(newProject);
-    setActiveTab("create");
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setCurrentProject((project) => ({
+      ...project,
+      [name]: value,
+    }));
   };
-
   const handleTabChange = (value: string) => {
     if (value === "create" || value === "view" || value === "stats") {
       setActiveTab(value);
     }
-  };
-
-  const handleSaveProject = (): void => {
-    if (currentProject) {
-      const updatedProjects = projects.map((project) =>
-        project.id === currentProject.id ? currentProject : project
-      );
-      setProjects(updatedProjects);
-      setActiveTab("view");
-    }
-  };
-
-  const handleVote = (projectId: string, vote: string): void => {
-    const updatedProjects = projects.map((project) =>
-      project.id === projectId
-        ? {
-            ...project,
-            votes: [...project.votes, vote],
-          }
-        : project
-    );
-    setProjects(updatedProjects);
   };
 
   return (
@@ -105,39 +82,62 @@ export function CreateProject() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <UserAvatar/>
+            <UserAvatar />
           </div>
         </div>
         <Tabs value={activeTab} onValueChange={handleTabChange}>
           <TabsList className="bg-zinc-700">
-            <TabsTrigger value="create" className={`${activeTab==="create"?"bg-zinc-800 text-white":"bg-transparent"}`}>Create Project</TabsTrigger>
-            <TabsTrigger value="view" className={`${activeTab==="view"?"bg-zinc-800 text-white":"bg-transparent"}`}>View Projects</TabsTrigger>
-            <TabsTrigger value="stats" className={`${activeTab==="stats"?"bg-zinc-800 text-white":"bg-transparent"}`}>Project Stats</TabsTrigger>
+            <TabsTrigger
+              value="create"
+              className={`${
+                activeTab === "create"
+                  ? "bg-zinc-800 text-white"
+                  : "bg-transparent"
+              }`}
+            >
+              Create Project
+            </TabsTrigger>
+            <TabsTrigger
+              value="view"
+              className={`${
+                activeTab === "view"
+                  ? "bg-zinc-800 text-white"
+                  : "bg-transparent"
+              }`}
+            >
+              View Projects
+            </TabsTrigger>
+            <TabsTrigger
+              value="stats"
+              className={`${
+                activeTab === "stats"
+                  ? "bg-zinc-800 text-white"
+                  : "bg-transparent"
+              }`}
+            >
+              Project Stats
+            </TabsTrigger>
           </TabsList>
           <TabsContent value="create">
-            <div className="grid gap-4">
+            <form className="grid gap-4">
               <Input
-                placeholder="Enter a prompt for your project"
-                value={currentProject?.prompt ?? ""}
-                onChange={(e) => {
-                  if (currentProject) {
-                    setCurrentProject({
-                      ...currentProject,
-                      prompt: e.target.value,
-                    });
-                  } else {
-                    // Create a new project if currentProject is null
-                    setCurrentProject({
-                      id: `project-${projects.length + 1}`,
-                      prompt: e.target.value,
-                      votes: [],
-                      createdAt: new Date().toISOString(),
-                    });
-                  }
-                }}
+                className="text-black"
+                placeholder="Enter the name of your thumbnail collection"
+                value={currentProject.name}
+                name="name"
+                onChange={handleChange}
               />
-              <Button onClick={handleSaveProject}>Save Project</Button>
-            </div>
+              <Input
+                className="text-black"
+                placeholder="Enter a prompt for your project"
+                name="prompt"
+                value={currentProject.prompt}
+                onChange={handleChange}
+              />
+              <label htmlFor="count">Thumbnail Count - {currentProject.count}</label>
+              <Slider id="count" name="count" value={[currentProject.count]} onValueChange={(value)=>setCurrentProject(project=>({...project,count:value[0]}))} defaultValue={[currentProject.count]} max={4} min={1} step={1} className="bg-zinc-700"/>
+              <Button>Save Project</Button>
+            </form>
           </TabsContent>
           <TabsContent value="view">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

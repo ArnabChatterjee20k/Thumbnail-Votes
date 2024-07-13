@@ -6,8 +6,6 @@ import {
   MenubarContent,
   MenubarItem,
   MenubarMenu,
-  MenubarSeparator,
-  MenubarShortcut,
   MenubarTrigger,
 } from "@/components/ui/menubar";
 export default function UserAvatar() {
@@ -22,7 +20,7 @@ export default function UserAvatar() {
           </Avatar>
         </MenubarTrigger>
         <MenubarContent className="bg-black outline-transparent border-none">
-          <MenubarItem onClick={signOut} className="hover:bg-zinc-700 cursor-pointer">Logout</MenubarItem>
+          <MenubarItem onClick={()=>signOut()} className="hover:bg-zinc-700 cursor-pointer">Logout</MenubarItem>
         </MenubarContent>
       </MenubarMenu>
     </Menubar>

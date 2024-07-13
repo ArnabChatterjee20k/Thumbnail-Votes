@@ -53,5 +53,6 @@ def get_project(project_id):
         return {
             "status": workers_status,
             "title":project.name,
-            "thumbnails": thumbnail_images
+            "thumbnails": thumbnail_images,
+            "email":project.email
         }

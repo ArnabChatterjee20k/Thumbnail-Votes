@@ -4,6 +4,7 @@ from sqlalchemy.orm import Mapped,mapped_column, relationship
 class Project(Base):
     __tablename__ = "project"
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    email : Mapped[String] = mapped_column(String(50),nullable=False)
     name:Mapped[str] = mapped_column(String(30),nullable=False)
     model:Mapped[str] = mapped_column(String(30),nullable=False)
     message:Mapped[str] = mapped_column(String(120),nullable=False)

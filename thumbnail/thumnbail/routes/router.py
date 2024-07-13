@@ -4,6 +4,7 @@ from thumnbail.data.sd_models import sd_models
 from thumnbail.utils.project import create_project_and_add_workers, get_project
 from thumnbail.utils.thumbnails import get_thumbnail_image
 import io
+from thumnbail.decorators.is_loggedin import is_loggedin
 router = Blueprint("thumbnail_generation", __name__)
 
 ACCEPTABLE_COUNT = 4
@@ -11,6 +12,7 @@ DEFAULT_MODEL = sd_models[0]
 
 
 @router.post("/")
+@is_loggedin
 def generate_images():
     body = request.get_json()
     if not body:
@@ -18,6 +20,7 @@ def generate_images():
 
     message = body.get('message')
     name = body.get("name")
+    email = body.get("email")
     if not message or not name:
         raise BadRequest('message and name is required.')
 
@@ -30,7 +33,7 @@ def generate_images():
     if model not in sd_models:
         model = DEFAULT_MODEL
 
-    project_id = create_project_and_add_workers(name, message, model, count)
+    project_id = create_project_and_add_workers(email,name, message, model, count)
     if not project_id:
         return InternalServerError("some problem occured")
     return jsonify({"project": project_id}), 201

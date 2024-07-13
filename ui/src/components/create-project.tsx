@@ -41,6 +41,7 @@ import {
 import UserAvatar from "./user-avatar";
 import { Slider } from "./ui/slider";
 import createProject from "@/app/actions/create-project";
+import { useFormStatus } from "react-dom";
 
 interface Project {
   prompt: string;
@@ -137,7 +138,7 @@ export function CreateProject() {
               />
               <label htmlFor="count">Thumbnail Count - {currentProject.count}</label>
               <Slider id="count" name="count" value={[currentProject.count]} onValueChange={(value)=>setCurrentProject(project=>({...project,count:value[0]}))} defaultValue={[currentProject.count]} max={4} min={1} step={1} className="bg-zinc-700"/>
-              <Button type="submit">Save Project</Button>
+              <Submit/>
             </form>
           </TabsContent>
           <TabsContent value="view">
@@ -202,6 +203,11 @@ export function CreateProject() {
       </div>
     </div>
   );
+}
+
+function Submit() {
+  const status = useFormStatus();
+  return <Button disabled={status.pending}>{status.pending?"Loading....":"Create Project"}</Button>
 }
 
 function FilePenIcon(props: any) {

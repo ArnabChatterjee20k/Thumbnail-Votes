@@ -5,16 +5,21 @@ import {
   getProjectDetails,
   getThumbnail,
   isUserVoted,
+  isAdmin,
 } from "../utils";
-import Image from "next/image";
 import { notFound, redirect } from "next/navigation";
+import { auth, signIn } from "@/auth";
+import Link from "next/link";
+
 
 export default async function Vote({
   params: { id },
 }: {
   params: { id: number };
 }) {
-  const { title, thumbnails } = await getProjectDetails(id);
+  const { title, thumbnails, email } = await getProjectDetails(id);
+  const admin = await isAdmin(email);
+  const session = await auth()
   return (
     <div className="max-w-4xl mx-auto p-6 lg:p-10 flex flex-col min-h-screen justify-center">
       <div className="flex flex-col gap-6">
@@ -26,9 +31,17 @@ export default async function Vote({
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm">
-              <ThumbsUpIcon className="w-4 h-4" />
-            </Button>
+            {
+              !session?.user && <Link href="/signin"><Button variant="outline">Login to continue</Button></Link>
+            }
+            {
+              admin && <h3>Current voting results</h3>
+            }
+            {(!admin && session?.user) && (
+              <Button variant="outline" size="sm">
+                <ThumbsUpIcon className="w-4 h-4" />
+              </Button>
+            )}
           </div>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -42,10 +55,12 @@ export default async function Vote({
                 className="rounded-lg object-cover aspect-video"
               />
               <div className="flex items-center gap-2">
-                <Button variant="ghost" size="icon">
-                  <ThumbsUpIcon className="w-4 h-4" />
-                </Button>
-                <div className="text-sm">12</div>
+                {!admin && (
+                  <Button variant="ghost" size="icon">
+                    <ThumbsUpIcon className="w-4 h-4" />
+                  </Button>
+                )}
+                {admin && <div className="text-sm">12 likes</div>}
               </div>
             </div>
           ))}

@@ -40,6 +40,7 @@ import {
 } from "@/components/ui/card";
 import UserAvatar from "./user-avatar";
 import { Slider } from "./ui/slider";
+import createProject from "@/app/actions/create-project";
 
 interface Project {
   prompt: string;
@@ -119,7 +120,7 @@ export function CreateProject() {
             </TabsTrigger>
           </TabsList>
           <TabsContent value="create">
-            <form className="grid gap-4">
+            <form className="grid gap-4" action={createProject}>
               <Input
                 className="text-black"
                 placeholder="Enter the name of your thumbnail collection"
@@ -136,7 +137,7 @@ export function CreateProject() {
               />
               <label htmlFor="count">Thumbnail Count - {currentProject.count}</label>
               <Slider id="count" name="count" value={[currentProject.count]} onValueChange={(value)=>setCurrentProject(project=>({...project,count:value[0]}))} defaultValue={[currentProject.count]} max={4} min={1} step={1} className="bg-zinc-700"/>
-              <Button>Save Project</Button>
+              <Button type="submit">Save Project</Button>
             </form>
           </TabsContent>
           <TabsContent value="view">

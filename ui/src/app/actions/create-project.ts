@@ -11,7 +11,6 @@ export default async (form: FormData) => {
   const count = form.get("count") as string;
   if (!name || !prompt || !count) return;
   const data = await create(user.email as string,name, prompt, parseInt(count));
-  if(data) redirect(`/vote/${data.project}`)
 };
 
 type ProjectResult = {
@@ -24,7 +23,7 @@ async function create(
   prompt: string,
   count: number
 ):Promise<ProjectResult> {
-  const url = process.env.THUMBNAIL;
+  const url = process.env.NEXT_THUMBNAIL;
   const res = await fetch(url as string, {
     method: "POST",
     body: JSON.stringify({

@@ -16,7 +16,7 @@ export default function UserAvatar() {
         <MenubarTrigger>
           <Avatar className="hover:border-2  hover:border-white transition-all duration-75 cursor-pointer">
             {<AvatarImage src={data?.user?.image as string} />}
-            <AvatarFallback>CN</AvatarFallback>
+            <AvatarFallback>{data?.user?.name?.split(" ").map(e=>e[0]).join("")}</AvatarFallback>
           </Avatar>
         </MenubarTrigger>
         <MenubarContent className="bg-black outline-transparent border-none">

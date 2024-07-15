@@ -1,10 +1,11 @@
 import { auth } from "@/auth";
 import { ProjectType } from "./types";
+import { redirect } from "next/navigation";
 
 export async function getProjectDetails(project_id: number) {
   const url = process.env.NEXT_PUBLIC_PROJECTURL || "";
-  const res = await fetch(`${url}/${project_id}`,{next:{revalidate:0}});
-  if (res.status !== 200) throw new NotFoundError(JSON.stringify({ code: res.status }));
+  const res = await fetch(`${url}/${project_id}`,{next:{revalidate:40}});
+  if (res.status !== 200) redirect("/error");
   const data: ProjectType = await res.json();
   return data;
 }
@@ -27,7 +28,7 @@ export function getTotalVotes(project_id: number) {
 export async function isAdmin(adminEmail:string){
   const session = await auth()
   const user = session?.user
-  if(!user) return false
+  if(!user || !user.email) return false
   return user.email === adminEmail
 }
 

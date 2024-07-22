@@ -4,7 +4,7 @@ from pika import spec
 
 from votes.utils.vote import add_thumbnail , up_vote
 import json
-
+from votes import socketio
 
 def thumbnail_callback(channel:BlockingChannel, method:spec.Basic.Deliver, properties, body):
     print("thumbnail")
@@ -27,12 +27,13 @@ def vote_db_callback(channel:BlockingChannel, method:spec.Basic.Deliver, propert
         response = json.loads(body.decode())
         user_id = response.get("user_id")
         thumbnail_id = response.get("thumbnail_id")
-        up_vote(user_id=user_id,thumbnail_id=thumbnail_id)
+        project_id = response.get("project_id")
+        # TODO: emit to a socket room of project_id
         # channel.basic_ack(delivery_tag=method.delivery_tag)
     except Exception as e:
         # channel.basic_nack(delivery_tag=method.delivery_tag) # do this with utmost knowledge what kind of exception should trigger this
         print(e)
-
+    # socketio.emit("message","hello",to=project_id)
     channel.basic_ack(delivery_tag=method.delivery_tag)
 
 

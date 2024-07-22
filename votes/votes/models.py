@@ -10,7 +10,7 @@ class Vote(Base):
 
 class Voters(Base):
     __tablename__ = "voters"
-    user_id: Mapped[int]
+    user_id: Mapped[String] = mapped_column(String(40),nullable=False)
     # since thumbnail is unique
     thumbnail_voted: Mapped[int]  = mapped_column(ForeignKey("vote.thumbnail_id"))
     __table_args__ = (

@@ -21,7 +21,7 @@ credentials = pika.PlainCredentials(user,password)
 params = pika.ConnectionParameters(host=host, credentials=credentials)
 
 
-def publish_upvote(user_id, thumbnail_id):
+def publish_upvote(user_id, project_id, thumbnail_id):
     connection = pika.BlockingConnection(parameters=params)
     exchange = "VOTES"
     with connection:
@@ -42,5 +42,5 @@ def publish_upvote(user_id, thumbnail_id):
         channel.basic_publish(
             exchange=exchange,
             routing_key=EXCHANGE_INFO[exchange]["routing_key"],
-            body=json.dumps({"user_id": user_id, "thumbnail_id": thumbnail_id})
+            body=json.dumps({"user_id": user_id, "thumbnail_id": thumbnail_id , "project_id":project_id})
         )

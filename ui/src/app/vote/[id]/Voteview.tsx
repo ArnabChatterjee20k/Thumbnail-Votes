@@ -6,6 +6,7 @@ import {
   getThumbnail,
   isUserVoted,
   isAdmin,
+  getVotingInfo,
 } from "../utils";
 import { notFound, redirect } from "next/navigation";
 import { auth, signIn } from "@/auth";
@@ -18,6 +19,8 @@ export default async function Vote({id}:{id:number}) {
   if(!id) return
   const admin = await isAdmin(email);
   const session = await auth()
+  const votingInfo = await getVotingInfo(id)
+  const isUserVoted = votingInfo?.voted
   return (
     <div className="max-w-4xl mx-auto p-6 lg:p-10 flex flex-col min-h-screen justify-center">
       <div className="flex flex-col gap-6">
@@ -48,7 +51,7 @@ export default async function Vote({id}:{id:number}) {
                 className="rounded-lg object-cover aspect-video"
               />
               <div className="flex items-center gap-2">
-                {!admin && <UpVoteButton thumbnail_id={thumbnail}/>}
+                {!admin && !isUserVoted && <UpVoteButton thumbnail_id={thumbnail} project_id={id}/>}
                 {admin && <div className="text-sm">12 likes</div>}
               </div>
             </div>

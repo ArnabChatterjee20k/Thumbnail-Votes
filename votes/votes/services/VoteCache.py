@@ -32,7 +32,11 @@ class VoteManager:
             return self._votes.pop(project_id)
         return None
 
-    def cache_votes(self,project_id):
+    def to_json(self):
+        return self._votes
+
+    def cache_votes(self,project_id) -> dict:
+        """use set instead of list to get data quickly"""
         if project_id in self._votes:
             return self._votes[project_id]
         thumbnails = self._cache_thumbnails(project_id)
@@ -54,6 +58,7 @@ class VoteManager:
         voters = get_voters(thumbnail_id=thumbnail_id)
         for voter in voters:
             self._votes[project_id][voter.thumbnail_voted].append(voter.user_id)
+
 
 
 

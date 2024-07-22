@@ -2,13 +2,16 @@
 
 import { useSocket } from "@/context/SocketContextProvider";
 import { Button } from "./ui/button";
+import { upVote } from "@/app/actions/upvote";
 
-export default ({ thumbnail_id }: { thumbnail_id: string }) => {
-  const { upVote } = useSocket();
+export default ({ thumbnail_id , project_id}: { thumbnail_id: string , project_id:number}) => {
+  
   return (
-    <Button variant="ghost" size="icon" onClick={() => upVote(thumbnail_id)}>
-      <ThumbsUpIcon className="w-4 h-4" />
-    </Button>
+    <form action={() => upVote(thumbnail_id,project_id)}>
+      <Button variant="ghost" size="icon" type="submit">
+        <ThumbsUpIcon className="w-4 h-4" />
+      </Button>
+    </form>
   );
 };
 

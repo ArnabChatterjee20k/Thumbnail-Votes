@@ -1,3 +1,16 @@
+# Starting the app
+```
+    python app.py
+```
+```
+    python consumer.py
+```
+```
+    celery -A celery_worker.celery_app beat --loglevel=info
+```
+```
+    celery -A celery_worker.celery_app worker --loglevel INFO -P solo
+```
 # How the voting gonna happend and how we are avoiding multiple db calls at once and how we will retrieve data fast?
 Let's consider we can spin multiple servers.
 
@@ -18,6 +31,15 @@ server B ws server -> voter3, voter5
 # But why are we using in memory structure? A stateful server
 I know redis is something more than a cache. But since a single server is their and it is not launched for usage by people thats why I am using an in memory object for maintaining the cache. When the sever will crash we can recreate the vote object from the database.
 Here we don't need the pubsub as well since all the voter will join to single ws instance
+
+# Broadcasting
+> Applicable for both project admin and those voters who have voted
+Create a room with specific projectid
+* Two ways -> 
+1. Broadcast to rooms using consumer whenenver upvoted
+2. Broadcast to rooms every few interval
+
+Approach using -> I am using a celery scheduler to filter out rooms and then emiting to the rooms
 
 ### Goal
 [] Consume project ready payload 

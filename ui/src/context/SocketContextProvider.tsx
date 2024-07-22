@@ -10,7 +10,6 @@ import { io, Socket } from "socket.io-client";
 
 interface ISocketContext {
   sendMessage: (msg: string) => any;
-  upVote:(thumbnail_id:string)=>any;
   messages: string[];
   project_id: number;
   email: string;
@@ -75,7 +74,7 @@ export const SocketContextProvider: React.FC<SocketProviderProps> = ({
 
   return (
     <SocketContext.Provider
-      value={{ sendMessage, messages, project_id, email,upVote }}
+      value={{ sendMessage, messages, project_id, email }}
     >
       {children}
     </SocketContext.Provider>

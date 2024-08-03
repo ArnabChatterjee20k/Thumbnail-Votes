@@ -6,6 +6,7 @@ from votes.publisher import publish_upvote
 from votes.utils.vote import up_vote
 from votes.utils.is_voted import is_voted
 from . import main as router
+from votes.workers.schedule_emit import emit_to_rooms
 
 cache = vote_manager
 
@@ -19,8 +20,9 @@ def vote_home(project_id):
     body = request.args
     email = body.get("email")
     print(cache)
+    admin = cache.get_admin(project_id)
     voters = [voter for thumbnail_voters in vote.values() for voter in thumbnail_voters]
-    voted = email in voters
+    voted = True if admin==email or email in voters else False
     response = {"voted":voted,"results":vote if voted else {}}
     return response
 
@@ -40,3 +42,13 @@ def upvote(project_id,thumbnail_id):
 def get_cache():
     """For celery scheduler"""
     return jsonify(cache.to_json())
+
+@router.get("/admin/<int:project_id>")
+def get_admin(project_id):
+    emit_to_rooms()
+    return jsonify(cache.get_admin(project_id))
+
+@router.get("/rooms")
+def get_rooms():
+    """for celery scheduler"""
+    return jsonify(cache.get_sid_room())

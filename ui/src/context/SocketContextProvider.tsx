@@ -10,7 +10,7 @@ import { io, Socket } from "socket.io-client";
 
 interface ISocketContext {
   sendMessage: (msg: string) => any;
-  messages: string[];
+  votes: Record<string,number>;
   project_id: number;
   email: string;
 }
@@ -34,8 +34,7 @@ export const SocketContextProvider: React.FC<SocketProviderProps> = ({
   email,
 }) => {
   const [socket, setSocket] = useState<Socket>();
-  const [messages, setMessages] = useState<string[]>([]);
-
+  const [votes,setVotes] = useState<Record<string,number>>({});
   const sendMessage: ISocketContext["sendMessage"] = useCallback(
     (msg) => {
       console.log("Send Message", msg);
@@ -46,27 +45,27 @@ export const SocketContextProvider: React.FC<SocketProviderProps> = ({
     [socket]
   );
 
-  const upVote = useCallback((thumbnail_id:string) => {
-    if(socket){
-        socket.emit("vote",JSON.stringify({thumbnail_id}))
+  const onVoteStatus = useCallback((msg: Record<string,number>) => {
+    console.log({msg})
+    if(msg){
+      if(msg)setVotes(msg)
     }
-  }, [socket]);
-
-  const onMessageRec = useCallback((msg: string) => {
-    console.log("From Server Msg Rec", msg);
-    const { message } = JSON.parse(msg) as { message: string };
-    setMessages((prev) => [...prev, message]);
   }, []);
 
   useEffect(() => {
     const _socket = io(`http://127.0.0.1:5000?email=${email}&project_id=${project_id}` as string);
-    _socket.on("message", onMessageRec);
+    _socket.on("vote_status", onVoteStatus);
+    console.log(_socket.connected)
     _socket.on("disconnect",(msg)=>console.log(msg))
+    _socket.onAny((eventName, ...args) => {
+      const logMessage = `Received '${eventName}' with data: ${JSON.stringify(args)}`;
+      console.log(logMessage);
+    });
 
     setSocket(_socket);
 
     return () => {
-      _socket.off("message", onMessageRec);
+      _socket.off("vote_status", onVoteStatus);
       _socket.disconnect();
       setSocket(undefined);
     };
@@ -74,7 +73,7 @@ export const SocketContextProvider: React.FC<SocketProviderProps> = ({
 
   return (
     <SocketContext.Provider
-      value={{ sendMessage, messages, project_id, email }}
+      value={{ sendMessage, votes, project_id, email }}
     >
       {children}
     </SocketContext.Provider>

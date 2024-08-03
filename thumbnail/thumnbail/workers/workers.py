@@ -3,7 +3,7 @@ from celery import chain, chord
 from celery.result import AsyncResult
 
 
-def generate_image_group(project_id, message, model, count):
+def generate_image_group(project_id, message, model, count,admin_id):
     # chain(task(arg),task(result_from_prev,arg))
     # here we are creating a chain of signatures
 
@@ -11,7 +11,7 @@ def generate_image_group(project_id, message, model, count):
     header = [chain(generate_prompt.s(message, count), map_prompt_generate_image.s(
         generate_image.s(model)))]
     callback = chain(save_images_to_storage.s(),
-                     save_thumbnail_ids_to_project.s(project_id))
+                     save_thumbnail_ids_to_project.s(project_id,admin_id))
     """the callback will receive an structure like this
     and they are ids. Take the data from 1st index array
     nested_list = [

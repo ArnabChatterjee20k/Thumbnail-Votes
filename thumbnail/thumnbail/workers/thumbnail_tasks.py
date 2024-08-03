@@ -78,7 +78,7 @@ def save_images_to_storage(images: list):
 
 
 @shared_task
-def save_thumbnail_ids_to_project(image_ids, project_id):
+def save_thumbnail_ids_to_project(image_ids, project_id,admin_id):
     save_thumbnails(project_id, image_ids)
     publish(json.dumps({"message": "project:saved",
-            "project_id": project_id, "image_ids": image_ids}))
+            "project_id": project_id, "image_ids": image_ids,"admin_id":admin_id}))

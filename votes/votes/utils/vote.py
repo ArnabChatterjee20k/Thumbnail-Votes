@@ -21,8 +21,8 @@ class with_db_session(contextlib.ContextDecorator):
         return wrapper
 
 @with_db_session()
-def add_thumbnail(session:Session,project_id,thumbnail_id):
-    vote = Vote(project_id=project_id,thumbnail_id=thumbnail_id)
+def add_thumbnail(session:Session,project_id,thumbnail_id,admin_id):
+    vote = Vote(project_id=project_id,thumbnail_id=thumbnail_id,admin_id=admin_id)
     session.add(vote)
     session.commit()
 
@@ -41,3 +41,11 @@ def up_vote(session:Session,user_id,thumbnail_id):
     voter = Voters(user_id=user_id,thumbnail_voted=thumbnail_id)
     session.add(voter)
     session.commit()
+
+@with_db_session()
+def get_admin(session:Session,project_id):
+    query = select(Vote).where(Vote.project_id == project_id)
+    vote = session.execute(query).scalar_one_or_none()
+    if vote:
+        return vote.admin_id
+    return None

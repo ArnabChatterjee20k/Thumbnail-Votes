@@ -6,9 +6,9 @@ from votes.workers.BgWorkers import create_bg_workers
 from kombu import Exchange,Queue
 import os
 
-socketio = SocketIO(cors_allowed_origins='*')
 CELERY_BROKER_BACKEND = os.environ.get("AMQP_URI")
 CELERY_RESULT_BACKEND = os.environ.get("CELERY_RESULT_BACKEND")
+socketio = SocketIO(cors_allowed_origins='*')
 
 def create_app():
     from votes.workers.schedule_emit import emit_to_rooms
@@ -28,7 +28,7 @@ def create_app():
     create_db()
     from votes.routes import main
     app.register_blueprint(main)
-    socketio.init_app(app=app)
+    socketio.init_app(app=app,message_queue=CELERY_BROKER_BACKEND)
     create_bg_workers(app)
     app.app_context().push()
     return app

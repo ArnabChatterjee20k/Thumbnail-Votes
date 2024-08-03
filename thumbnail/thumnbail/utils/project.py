@@ -5,8 +5,8 @@ from thumnbail.workers import workers
 from celery.result import AsyncResult
 
 
-def create_project(session,email, name, message, model, count):
-    project = Project(email = email,name=name, message=message,
+def create_project(session, email, name, message, model, count):
+    project = Project(email=email, name=name, message=message,
                       count=count, model=model)
     session.add(project)
     session.flush()
@@ -20,15 +20,16 @@ def add_workers_to_project(session, worker_id, project_id):
     return worker.id
 
 
-def create_project_and_add_workers(email,name, message, model, count):
+def create_project_and_add_workers(email, name, message, model, count):
     with Session() as session:
         task_id = None
         try:
-            project_id = create_project(session,email, name, message, model, count)
+            project_id = create_project(
+                session, email, name, message, model, count)
             if not project_id:
                 return None
             task_id = workers.generate_image_group(
-                project_id, message, model, count)
+                project_id, message, model, count, email)
             generated_task = add_workers_to_project(
                 session, task_id, project_id)
             session.commit()
@@ -52,7 +53,7 @@ def get_project(project_id):
         workers_status = workers.get_workers_status(latest_worker_id)
         return {
             "status": workers_status,
-            "title":project.name,
+            "title": project.name,
             "thumbnails": thumbnail_images,
-            "email":project.email
+            "email": project.email
         }

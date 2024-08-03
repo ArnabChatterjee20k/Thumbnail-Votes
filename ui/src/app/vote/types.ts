@@ -10,3 +10,7 @@ export type VotingResults = {
   } | {}; 
   voted: boolean;
 }
+
+export type VotingResultsOut = {
+  [key:string] : number
+}

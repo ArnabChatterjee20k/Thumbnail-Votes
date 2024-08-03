@@ -1,6 +1,6 @@
 from celery import Celery, Task
 import sys,os
-
+from dotenv import load_dotenv
 # sys.path.append(os.getcwd())
 from thumnbail import create_app
 # the app context must be pushed inside the create_app as we are using the create_app to create the celery worker

@@ -13,14 +13,26 @@ import { auth, signIn } from "@/auth";
 import Link from "next/link";
 import { useSocket } from "@/context/SocketContextProvider";
 import UpVoteButton from "@/components/UpVoteButton";
+import { VotingResultsOut } from "../types";
+import LiveVoteCounter from "@/components/VoteCounter";
 
-export default async function Vote({id}:{id:number}) {
+export default async function Vote({ id }: { id: number }) {
   const { title, thumbnails, email } = await getProjectDetails(id);
-  if(!id) return
+  if (!id) return;
   const admin = await isAdmin(email);
-  const session = await auth()
-  const votingInfo = await getVotingInfo(id)
-  const isUserVoted = votingInfo?.voted
+  const session = await auth();
+  const votingInfo = await getVotingInfo(id);
+  const isUserVoted = votingInfo?.voted;
+  console.log({votingInfo:votingInfo?.results})
+  const voteResults = votingInfo?.results
+    ? Object.entries(votingInfo?.results).reduce<VotingResultsOut>(
+        (acc, [key, value]) => {
+          acc[key] = value.length;
+          return acc;
+        },
+        {}
+      )
+    : {};
   return (
     <div className="max-w-4xl mx-auto p-6 lg:p-10 flex flex-col min-h-screen justify-center">
       <div className="flex flex-col gap-6">
@@ -32,12 +44,12 @@ export default async function Vote({id}:{id:number}) {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            {
-              !session?.user && <Link href="/signin"><Button variant="outline">Login to continue</Button></Link>
-            }
-            {
-              admin && <h3>Current voting results</h3>
-            }
+            {!session?.user && (
+              <Link href="/signin">
+                <Button variant="outline">Login to continue</Button>
+              </Link>
+            )}
+            {admin && <h3>Current voting results</h3>}
           </div>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -51,8 +63,14 @@ export default async function Vote({id}:{id:number}) {
                 className="rounded-lg object-cover aspect-video"
               />
               <div className="flex items-center gap-2">
-                {!admin && !isUserVoted && <UpVoteButton thumbnail_id={thumbnail} project_id={id}/>}
-                {admin && <div className="text-sm">12 likes</div>}
+                {!admin && !isUserVoted && (
+                  <UpVoteButton thumbnail_id={thumbnail} project_id={id} />
+                )}
+                {(admin || isUserVoted) && (
+                  <div className="text-sm">
+                    {<LiveVoteCounter initialCount={voteResults[thumbnail]} thumbnail_id={thumbnail}/>}
+                  </div>
+                )}
               </div>
             </div>
           ))}
@@ -61,4 +79,3 @@ export default async function Vote({id}:{id:number}) {
     </div>
   );
 }
-

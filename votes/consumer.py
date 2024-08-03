@@ -12,8 +12,9 @@ def thumbnail_callback(channel:BlockingChannel, method:spec.Basic.Deliver, prope
         response = json.loads(body.decode())
         project_id = response.get("project_id")
         image_ids = response.get("image_ids")
+        admin_id = response.get("admin_id")
         for image_id in image_ids:
-            add_thumbnail(project_id=project_id,thumbnail_id=image_id)
+            add_thumbnail(project_id=project_id,thumbnail_id=image_id,admin_id=admin_id)
         # channel.basic_ack(delivery_tag=method.delivery_tag)
     except Exception as e:
         # channel.basic_nack(delivery_tag=method.delivery_tag) # do this with utmost knowledge what kind of exception should trigger this

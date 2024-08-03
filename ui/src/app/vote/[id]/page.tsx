@@ -16,8 +16,9 @@ export default async ({ params: { id } }: { params: { id: number } }) => {
   const { email } = projectDetailsResult
   const {voted,results:voteResults} = votingInfoResult
   const admin = await isAdmin(email);
+  console.log({voted})
   return (
-    <VoteRender voted={voted} establishSocket={admin ? false : true}>
+    <VoteRender establishSocket={voted}>
       <Voteview id={id} />
     </VoteRender>
   );

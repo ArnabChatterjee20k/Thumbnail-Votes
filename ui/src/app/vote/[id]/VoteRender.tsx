@@ -9,11 +9,9 @@ import React from "react";
 export default function VoteRender({
   children,
   establishSocket,
-  voted
 }: {
   children: React.ReactNode;
   establishSocket: boolean;
-  voted:boolean;
 }) {
   const session = useSession();
   const param = useParams();
@@ -23,7 +21,7 @@ export default function VoteRender({
         <Button variant="default">Login to continue</Button>
       </Link>
     );
-  if (voted && establishSocket)
+  if (establishSocket)
     return (
       <SocketContextProvider
         project_id={parseInt(param.id as string) as number}
